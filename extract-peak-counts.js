@@ -1,5 +1,4 @@
 var fs = require("fs");
-const { report } = require("process");
 
 const PATH_FROM_01 = "./pdf-to-text.txt";
 const PATH_FROM_02 = "./pdf-to-text02.txt";
@@ -89,72 +88,44 @@ function replaceString(txt, pattern_find, pattern_replace) {
 }
 
 function getPeaks(text) {
-    let peaks = findText(text, PATTERNS.findPeaks).sort();
-    return peaks;
-    // for (thisPeak of peaks) {
-    //     if (thisPeak[1] == ":") {
-    //         let newPeak = "0" + thisPeak;
-    //         peaks.push(newPeak);
-    //     }
-    // }
-
-    // peaks = peaks.sort().filter((el) => el[1] != ":");
-    for (thisPeak02 of peaks) {
-        let counts = thisPeak02.match(/(?<=\* ).+/gi).join("");
-
-        pat_time = /\d\d:\d\d/g;
-
-        pat_eb = /\d\d:\d\d/g;
-        pat_wb = /\d\d:\d\d/g;
-
-        const Time = thisPeak02.match(pat_time).join("");
-        const EastBound = thisPeak02.match(pat_eb).join("");
-        const WestBound = thisPeak02.match(pat_wb).join("");
-
-        console.log(EastBound);
-        // console.log({ Time, WestBound, EastBound });
-
-        // const time = thisPeak02.
-        // peaks.push({
-        //     Time: "",
-        //     EastBound: "",
-        //     WestBound: "",
-        // });
-    }
-
-    /* 
-    peaks = [
-        {
-            Time: "",
-            EastBound: "",
-            WestBound: "",
-        }
-    ]
-    
-    */
+    const pattern = /(\d+:\d{2} )\*( \d+)+/gi;
+    peaks = text.match(pattern).sort();
 
     return peaks;
 }
 
-function OPP(pathFrom, pattern) {
-    let text = readFile(pathFrom);
-    text = removeCommas(text);
+function getDirection(report) {
+    const N_S = report.match(/Northbound Southbound(?=\n)/g);
+    const S_N = report.match(/Southbound Northbound(?=\n)/g);
+    const E_W = report.match(/Eastbound Westbound(?=\n)/g);
+    const W_E = report.match(/Westbound Eastbound(?=\n)/g);
 
-    const matches = findText(text, pattern);
-
-    const counterNum = findText(text, pattern.findCounterNumber).join("");
-
-    let peaks = getPeaks(text);
-
-    return { peaks };
+    const thisDirection =
+        N_S != null
+            ? "North-South bound"
+            : S_N != null
+            ? "South-North bound"
+            : E_W != null
+            ? "East-West bound"
+            : W_E != null
+            ? "West-East bound"
+            : "None";
+    return thisDirection;
 }
 
 function transformReport(report) {
-    return "hey";
-    let peaks_01 = getPeaks(report);
+    const thisDirection = getDirection(report);
+    let peaks = getPeaks(report);
+
+    let AM_peaks = peaks.slice(0, 4);
+    let PM_peaks = peaks.slice(-4);
+
+    return peaks;
+
+    return [AM_peaks, PM_peaks];
 }
 
-function OPP_02(pathFrom, pattern) {
+function OPP(pathFrom, pattern) {
     let text = readFile(pathFrom);
 
     // remove commas from numbers. also helps with CSV format
@@ -171,4 +142,4 @@ function OPP_02(pathFrom, pattern) {
 }
 
 // console.log(OPP(PATH_FROM_01, PATTERNS));
-console.log(OPP_02(PATH_FROM_02, PATTERNS));
+console.log(OPP(PATH_FROM_02, PATTERNS));
