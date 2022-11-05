@@ -4,6 +4,11 @@ const PATH_FROM_01 = "./pdf-to-text.txt";
 const PATH_FROM_02 = "./pdf-to-text02.txt";
 const PATH_TO = "../result/result.txt";
 
+const NORTH_SOUTH = "NORTH-SOUTH";
+const SOUTH_NORTH = "SOUTH-NORTH";
+const EAST_WEST = "EAST-WEST";
+const WEST_EAST = "WEST-EAST";
+
 /* 
 High-Level:
 
@@ -53,6 +58,11 @@ const PATTERNS = {
     addLeadingZero: /\n(?=\d:\d\d)/g,
     timeReturn: / (?=\d\d:\d\d)/g,
     getPeaks: /(\d+:\d{2} )\*( \d+)+/gi,
+
+    getCounter: /(?<=Counter No\. : ).+/g,
+    getLocation: /(?<=Location: ).+/g,
+    getDate: /./g,
+    getProjectNo: /(?<=Average Daily Traffic\r\n).+/g,
 };
 
 const textToReports = (text, pattern) => text.match(pattern.wholeDoc);
@@ -71,34 +81,68 @@ const fixTime = (txt) =>
 const getPeaks = (text) => text.match(PATTERNS.getPeaks).sort();
 
 function getDirection(report) {
-    const N_S = report.match(/Northbound Southbound(?=\n)/g);
-    const S_N = report.match(/Southbound Northbound(?=\n)/g);
-    const E_W = report.match(/Eastbound Westbound(?=\n)/g);
-    const W_E = report.match(/Westbound Eastbound(?=\n)/g);
+    // return report;
+
+    const N_S_01 = report.match(/Northbound Southbound(?=\n)/g);
+    const S_N_01 = report.match(/Southbound Northbound(?=\n)/g);
+    const E_W_01 = report.match(/Eastbound Westbound(?=\n)/g);
+    const W_E_01 = report.match(/Westbound Eastbound(?=\n)/g);
+
+    const N_S_02 = report.match(/Northbound Southbound Northbound Southbound/g);
+    const S_N_02 = report.match(/Southbound Northbound Southbound Northbound/g);
+    const E_W_02 = report.match(/Eastbound Westbound Eastbound Westbound/g);
+    const W_E_02 = report.match(/Westbound Eastbound Westbound Eastbound/g);
+
+    const N_S_03 = report.match(/Southbound Northbound Southbound/g);
+    const S_N_03 = report.match(/Northbound Southbound Northbound/g);
+    const E_W_03 = report.match(/Westbound Eastbound Westbound/g);
+    const W_E_03 = report.match(/Eastbound Westbound Eastbound/g);
+
+    const N_S = report.match(/Northbound Southbound(?=\r\n)/g);
+    const S_N = report.match(/Southbound Northbound(?=\r\n)/g);
+    const E_W = report.match(/Eastbound Westbound(?=\r\n)/g);
+    const W_E = report.match(/Westbound Eastbound(?=\r\n)/g);
 
     const thisDirection =
         N_S != null
-            ? "North-South bound"
+            ? NORTH_SOUTH
             : S_N != null
-            ? "South-North bound"
+            ? SOUTH_NORTH
             : E_W != null
-            ? "East-West bound"
+            ? EAST_WEST
             : W_E != null
-            ? "West-East bound"
+            ? WEST_EAST
             : "None";
     return thisDirection;
 }
 
 function transformReport(report) {
-    const thisDirection = getDirection(report);
+    return report;
     let peaks = getPeaks(report);
+    const Direction = getDirection(report);
 
-    let AM_peaks = peaks.slice(0, 4);
-    let PM_peaks = peaks.slice(-4);
+    let splitTimeAndValues = (thesePeaks) =>
+        thesePeaks.map((el) => {
+            let splitted = el.split(" * ");
+            let Time = splitted[0];
+            let Values = splitted[1].split(" ");
+            if (Values.length == 4) {
+                Values = [Number(Values[0]), Number(Values[2])];
+            } else {
+                Values = [Number(Values[0]), Number(Values[1])];
+            }
+            return { Direction, Time, Values };
+        });
 
-    return peaks;
+    let AM_peaks = splitTimeAndValues(peaks.slice(0, 4));
+    let PM_peaks = splitTimeAndValues(peaks.slice(-4));
 
-    return [AM_peaks, PM_peaks];
+    // return Direction;
+
+    // return AM_peaks[0];
+    // return PM_peaks;
+
+    return { Direction, AM_peaks, PM_peaks };
 }
 
 function OPP(pathFrom, pattern) {
@@ -112,10 +156,13 @@ function OPP(pathFrom, pattern) {
     // separated 1 text file into array of 'reports' (2-day traffic volume data reports)
     let reports = textToReports(text, pattern);
 
+    // return getDirection(reports[0]);
+
+    // returns an object {Direction, }
     let finalReport = reports.map((el) => transformReport(el));
 
     return finalReport;
 }
 
-// console.log(OPP(PATH_FROM_01, PATTERNS));
-console.log(OPP(PATH_FROM_02, PATTERNS));
+console.log(OPP(PATH_FROM_01, PATTERNS));
+// console.log(OPP(PATH_FROM_02, PATTERNS));
