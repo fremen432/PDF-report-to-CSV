@@ -1,8 +1,8 @@
 var fs = require("fs");
 
-const PATH_FROM_01 = "./pdf-to-text.txt";
-const PATH_FROM_02 = "./pdf-to-text02.txt";
-const PATH_TO = "../result/result.txt";
+const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
+const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
+// const PATH_TO = "./result/result.txt";
 
 const NORTH_SOUTH = "NORTH-SOUTH";
 const SOUTH_NORTH = "SOUTH-NORTH";
@@ -117,7 +117,7 @@ function getDirection(report) {
 }
 
 function transformReport(report) {
-    return report;
+    // return report;
     let peaks = getPeaks(report);
     const Direction = getDirection(report);
 
