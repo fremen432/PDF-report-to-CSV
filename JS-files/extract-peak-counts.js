@@ -4,6 +4,9 @@ const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
 const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
 // const PATH_TO = "./result/result.txt";
 
+const PDF_1_PAGE = "./PDF-files/US90_Tube-Counts_1page.pdf";
+const PDF_FULL = "./PDF-files/US90_Tube-Counts_FULL.pdf";
+
 const NORTH_SOUTH = "NORTH-SOUTH";
 const SOUTH_NORTH = "SOUTH-NORTH";
 const EAST_WEST = "EAST-WEST";
