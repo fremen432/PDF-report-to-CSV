@@ -47,52 +47,28 @@ const PATTERNS = {
     topOfPage: /Pape-Dawson Engineers,? Inc\. Automatic Traffic Counts/g,
     wholeDoc: /(?<=Pape-Dawson )([\s\S]+?)(?=Time of Day)/g,
     pageTop: /\d/g,
-
-    // findCounterNumber: /(?<=Counter).+(?=\n)/g,
     findCounterNumber: /(?<=Counter No\. : )\d+/g,
     findPeaks: /(\d+:\d{2} )\*( \d+)+/gi,
     findSingleDigitTime: /\n(?=\d:)/gi,
-    // findPeaks: //gi,
+    addLeadingZero: /\n(?=\d:\d\d)/g,
+    timeReturn: / (?=\d\d:\d\d)/g,
+    getPeaks: /(\d+:\d{2} )\*( \d+)+/gi,
 };
 
-const pattern_addZero = /\n0/gi;
+const textToReports = (text, pattern) => text.match(pattern.wholeDoc);
 
-function textToReports(text, pattern) {
-    return text.match(pattern.wholeDoc);
-}
+const readFile = (path) => fs.readFileSync(path, "utf-8", (err, data) => data);
 
-function readFile(path) {
-    const res = fs.readFileSync(path, "utf-8", (err, data) => data);
-    return res;
-}
+const removeCommas = (txt) => txt.replaceAll(",", "");
 
-function findText(txt, pattern) {
-    return txt.match(pattern);
-}
-
-function removeCommas(txt) {
-    const pattern = /(?<=\d),(?=\d)/g;
-    return txt.replaceAll(",", "");
-}
-
-function fixTime(txt) {
+const fixTime = (txt) =>
     // add "0" before all 1:00 type times
     // then separate each time on it's own line
-    const pattern = /\n(?=\d:\d\d)/g;
-    return txt.replaceAll(pattern, "\n0").replaceAll(/ (?=\d\d:\d\d)/g, "\n");
-}
+    txt
+        .replaceAll(PATTERNS.addLeadingZero, "\n0")
+        .replaceAll(PATTERNS.timeReturn, "\n");
 
-function replaceString(txt, pattern_find, pattern_replace) {
-    const pattern = /(?<=\d),(?=\d)/g;
-    return txt.replaceAll(",", "");
-}
-
-function getPeaks(text) {
-    const pattern = /(\d+:\d{2} )\*( \d+)+/gi;
-    peaks = text.match(pattern).sort();
-
-    return peaks;
-}
+const getPeaks = (text) => text.match(PATTERNS.getPeaks).sort();
 
 function getDirection(report) {
     const N_S = report.match(/Northbound Southbound(?=\n)/g);

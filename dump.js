@@ -10,3 +10,10 @@ function OPP(pathFrom, pattern) {
 
     return { peaks };
 }
+
+function replaceString(txt, pattern_find, pattern_replace) {
+    const pattern = /(?<=\d),(?=\d)/g;
+    return txt.replaceAll(",", "");
+}
+
+const findText = (txt, pattern) => txt.match(pattern);
