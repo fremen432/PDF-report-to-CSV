@@ -1,8 +1,10 @@
 var fs = require("fs");
 
-const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
-const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
-// const PATH_TO = "./result/result.txt";
+// const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
+// const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
+
+const PATH_FROM_01 = "../TXT-files/pdf-to-text.txt";
+const PATH_FROM_02 = "../TXT-files/pdf-to-text02.txt";
 
 const PDF_1_PAGE = "./PDF-files/US90_Tube-Counts_1page.pdf";
 const PDF_FULL = "./PDF-files/US90_Tube-Counts_FULL.pdf";
@@ -69,10 +71,15 @@ const PATTERNS = {
 };
 
 const textToReports = (text, pattern) => text.match(pattern.wholeDoc);
+// separated 1 text file into array of 'reports' (2-day traffic volume data reports)
 
-const readFile = (path) => fs.readFileSync(path, "utf-8", (err, data) => data);
+const readFile = (path) =>
+    fs.readFileSync(path, "utf-8", (err, data) =>
+        data.catch((err) => console.log(err))
+    );
 
 const removeCommas = (txt) => txt.replaceAll(",", "");
+// remove commas from numbers. also helps with CSV format
 
 const fixTime = (txt) =>
     // add "0" before all 1:00 type times
@@ -120,6 +127,8 @@ function getDirection(report) {
 }
 
 function transformReport(report) {
+    // transforms raw text into an object { Direction, Time, Values }
+
     // return report;
     let peaks = getPeaks(report);
     const Direction = getDirection(report);
@@ -129,6 +138,7 @@ function transformReport(report) {
             let splitted = el.split(" * ");
             let Time = splitted[0];
             let Values = splitted[1].split(" ");
+            // if the time values have 4 values, only return the 1st and 3rd value
             if (Values.length == 4) {
                 Values = [Number(Values[0]), Number(Values[2])];
             } else {
@@ -141,7 +151,6 @@ function transformReport(report) {
     let PM_peaks = splitTimeAndValues(peaks.slice(-4));
 
     // return Direction;
-
     // return AM_peaks[0];
     // return PM_peaks;
 
@@ -151,17 +160,12 @@ function transformReport(report) {
 function OPP(pathFrom, pattern) {
     let text = readFile(pathFrom);
 
-    // remove commas from numbers. also helps with CSV format
     text = removeCommas(text);
 
     text = fixTime(text);
 
-    // separated 1 text file into array of 'reports' (2-day traffic volume data reports)
     let reports = textToReports(text, pattern);
 
-    // return getDirection(reports[0]);
-
-    // returns an object {Direction, }
     let finalReport = reports.map((el) => transformReport(el));
 
     return finalReport;
