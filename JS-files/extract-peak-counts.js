@@ -1,10 +1,10 @@
 var fs = require("fs");
 
-// const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
-// const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
+const PATH_FROM_01 = "./TXT-files/pdf-to-text.txt";
+const PATH_FROM_02 = "./TXT-files/pdf-to-text02.txt";
 
-const PATH_FROM_01 = "../TXT-files/pdf-to-text.txt";
-const PATH_FROM_02 = "../TXT-files/pdf-to-text02.txt";
+const PATH_FROM_03 = "../TXT-files/pdf-to-text.txt";
+const PATH_FROM_04 = "../TXT-files/pdf-to-text02.txt";
 
 const PDF_1_PAGE = "./PDF-files/US90_Tube-Counts_1page.pdf";
 const PDF_FULL = "./PDF-files/US90_Tube-Counts_FULL.pdf";
@@ -69,6 +69,8 @@ const PATTERNS = {
     getDate: /./g,
     getProjectNo: /(?<=Average Daily Traffic\r\n).+/g,
 };
+
+const doesFileExist = (path) => fs.existsSync(path);
 
 const textToReports = (text, pattern) => text.match(pattern.wholeDoc);
 // separated 1 text file into array of 'reports' (2-day traffic volume data reports)
@@ -171,5 +173,12 @@ function OPP(pathFrom, pattern) {
     return finalReport;
 }
 
-console.log(OPP(PATH_FROM_01, PATTERNS));
+console.log(
+    doesFileExist(PATH_FROM_01),
+    doesFileExist(PATH_FROM_02),
+    doesFileExist(PATH_FROM_03),
+    doesFileExist(PATH_FROM_04)
+);
+
+// console.log(OPP(PATH_FROM_01, PATTERNS));
 // console.log(OPP(PATH_FROM_02, PATTERNS));
